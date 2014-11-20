@@ -1,0 +1,25 @@
+/////
+vim:set ts=4 sw=4 tw=82 noet:
+/////
+kiofs (1)
+=========
+
+Name
+----
+kiofs - FUSE filesystem for KnightOS I/O filesystem mounts
+
+Synopsis
+--------
+'kiofs' _mountpoint_
+
+Description
+-----------
+
+Mounts an attached KnightOS calculator at _mountpoint_.
+
+Authors
+-------
+
+Maintained by Drew DeVault <sir@cmpwn.com>, who is assisted by other open
+source contributors. For more information about kiofs development, see
+<https://github.com/KnightOS/kiofs>.
