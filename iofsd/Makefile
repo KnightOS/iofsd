@@ -4,7 +4,7 @@ include .knightos/variables.make
 ALL_TARGETS:=$(BIN)iofsd
 
 # This is all the make targets to produce said files
-$(BIN)iofsd: main.asm
+$(BIN)iofsd: *.asm
 	mkdir -p $(BIN)
 	$(AS) $(ASFLAGS) --listing $(OUT)main.list main.asm $(BIN)iofsd
 

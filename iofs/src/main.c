@@ -30,25 +30,27 @@ int main(int argc, char **argv) {
 	if (err) {
 		kiofs_abort(err);
 	}
-	uint8_t send_buf[] = { 0x51, 0x01, 0x00, 0x00 };
 
-	err = ticables_cable_send(handle, send_buf, sizeof(send_buf));
+	uint8_t recv_buf[256];
+
+	uint8_t ping_buf[] = { 0x51, 0x01, 0x00, 0x00 };
+
+	err = ticables_cable_send(handle, ping_buf, sizeof(ping_buf));
 	if (err) {
 		kiofs_abort(err);
 	}
-	printf("sent data\n");
-
-	uint8_t recv_buf[256];
+	printf("-> ping\n");
 
 	err = ticables_cable_recv(handle, recv_buf, 4);
 	if (err) {
 		kiofs_abort(err);
 	}
-	printf("response: ");
+	printf("<- ");
 	int i;
 	for (i = 0; i < 4; ++i) {
 		printf("%02X", recv_buf[i]);
 	}
+	printf("\n");
 
 	ticables_cable_close(handle);
 	ticables_handle_del(handle);

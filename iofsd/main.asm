@@ -10,35 +10,70 @@
 name:
     .db "iofsd", 0
 start:
-    ; This is an example program, replace it with your own!
-    
-    ; Get a lock on the devices we intend to use
     pcall(getLcdLock)
     pcall(getKeypadLock)
-
-    ; Allocate and clear a buffer to store the contents of the screen
     pcall(allocScreenBuffer)
+    kld((screen), iy)
     pcall(clearBuffer)
 
-    ; Draw `message` to 0, 0 (D, E = 0, 0)
-    kld(hl, message)
-    ld de, 0
-    pcall(drawStr)
+    kcall(init_io)
+    kld(hl, ready_str)
+    kcall(log)
 
-.loop:
-    ; Copy the display buffer to the actual LCD
-    pcall(fastCopy)
+packet_loop:
+    ;pcall(suspendCurrentThread)
+    kcall(handle_packet)
+    jr packet_loop
 
-    ; flushKeys waits for all keys to be released
-    pcall(flushKeys)
-    ; waitKey waits for a key to be pressed, then returns the key code in A
-    pcall(waitKey)
+ready:
+    .db 0
 
-    cp kMODE
-    jr nz, .loop
+ready_str:
+    .db "Ready", 0
 
-    ; Exit when the user presses "MODE"
+log:
+    push de
+    push bc
+    push af
+    push hl
+        ld b, 0
+        kld(de, (.cur))
+        pcall(drawStr)
+        pcall(newline)
+        pcall(fastCopy)
+        ld a, 64
+        cp e
+        jr nz, .ret
+        ld e, 58
+        kld((.cur), de)
+        push iy \ pop hl
+        push iy \ pop de
+        ld bc, 12 * 6
+        add hl, bc
+        ld bc, 768 - (12 * 6)
+        ldir
+        ld c, 96
+        ld b, 6
+        ld e, 0
+        ld l, 58
+        pcall(rectAND)
+    pop hl
+    pop af
+    pop bc
+    pop de
     ret
+.ret:
+        kld((.cur), de)
+    pop hl
+    pop af
+    pop bc
+    pop de
+    ret
+.cur:
+    .dw 0x0004
 
-message:
-    .db "Hello, world!", 0
+screen:
+    .dw 0
+
+#include "handlers.asm"
+#include "protocol.asm"
