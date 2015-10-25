@@ -1,21 +1,22 @@
 /////
 vim:set ts=4 sw=4 tw=82 noet:
 /////
-kiofs (1)
-=========
+iofs (1)
+========
 
 Name
 ----
-kiofs - FUSE filesystem for KnightOS I/O filesystem mounts
+iofs - Manage KnightOS filesystems over a silverlink cable.
 
 Synopsis
 --------
-'kiofs' _mountpoint_
+'iofs' _command_ [args...]
 
-Description
------------
+Commands
+--------
 
-Mounts an attached KnightOS calculator at _mountpoint_.
+*ls* <path>::
+	Lists the contents of _path_.
 
 Authors
 -------

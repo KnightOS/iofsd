@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -29,17 +30,24 @@ int main(int argc, char **argv) {
 	if (err) {
 		kiofs_abort(err);
 	}
+	uint8_t send_buf[] = { 0x51, 0x01, 0x00, 0x00 };
 
-	uint8_t buf[32];
-	int i;
-	for (i = 0; i < 32; ++i) {
-		buf[i] = i + 1;
-		printf("%02X ", buf[i]);
-	}
-	printf("\n");
-	err = ticables_cable_send(handle, buf, 16);
+	err = ticables_cable_send(handle, send_buf, sizeof(send_buf));
 	if (err) {
 		kiofs_abort(err);
+	}
+	printf("sent data\n");
+
+	uint8_t recv_buf[256];
+
+	err = ticables_cable_recv(handle, recv_buf, 4);
+	if (err) {
+		kiofs_abort(err);
+	}
+	printf("response: ");
+	int i;
+	for (i = 0; i < 4; ++i) {
+		printf("%02X", recv_buf[i]);
 	}
 
 	ticables_cable_close(handle);
