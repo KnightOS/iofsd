@@ -207,6 +207,33 @@ src/main.c.s:
 	$(MAKE) -f CMakeFiles/iofs.dir/build.make CMakeFiles/iofs.dir/src/main.c.s
 .PHONY : src/main.c.s
 
+src/protocol.o: src/protocol.c.o
+
+.PHONY : src/protocol.o
+
+# target to build an object file
+src/protocol.c.o:
+	$(MAKE) -f CMakeFiles/iofs.dir/build.make CMakeFiles/iofs.dir/src/protocol.c.o
+.PHONY : src/protocol.c.o
+
+src/protocol.i: src/protocol.c.i
+
+.PHONY : src/protocol.i
+
+# target to preprocess a source file
+src/protocol.c.i:
+	$(MAKE) -f CMakeFiles/iofs.dir/build.make CMakeFiles/iofs.dir/src/protocol.c.i
+.PHONY : src/protocol.c.i
+
+src/protocol.s: src/protocol.c.s
+
+.PHONY : src/protocol.s
+
+# target to generate assembly for a file
+src/protocol.c.s:
+	$(MAKE) -f CMakeFiles/iofs.dir/build.make CMakeFiles/iofs.dir/src/protocol.c.s
+.PHONY : src/protocol.c.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -224,6 +251,9 @@ help:
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
+	@echo "... src/protocol.o"
+	@echo "... src/protocol.i"
+	@echo "... src/protocol.s"
 .PHONY : help
 
 

@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <tilp2/ticables.h>
 #include <glib.h>
+#include "protocol.h"
 
 void kiofs_abort(int err) {
 	char *message;
@@ -27,30 +28,23 @@ int main(int argc, char **argv) {
 	ticables_handle_show(handle);
 
 	int err = ticables_cable_open(handle);
-	if (err) {
-		kiofs_abort(err);
-	}
 
-	uint8_t recv_buf[256];
+	kpacket_t packet;
+	packet.cmd = CMD_PING;
+	packet.len = 0;
+	packet.payload = NULL;
 
-	uint8_t ping_buf[] = { 0x51, 0x01, 0x00, 0x00 };
+	err = send_packet(handle, &packet);
+	if (err) kiofs_abort(err);
 
-	err = ticables_cable_send(handle, ping_buf, sizeof(ping_buf));
-	if (err) {
-		kiofs_abort(err);
-	}
-	printf("-> ping\n");
+	err = recv_packet(handle, &packet);
+	if (err) kiofs_abort(err);
 
-	err = ticables_cable_recv(handle, recv_buf, 4);
-	if (err) {
-		kiofs_abort(err);
+	if (packet.cmd == CMD_PING) {
+		printf("pong\n");
+	} else {
+		printf("unexpected response\n");
 	}
-	printf("<- ");
-	int i;
-	for (i = 0; i < 4; ++i) {
-		printf("%02X", recv_buf[i]);
-	}
-	printf("\n");
 
 	ticables_cable_close(handle);
 	ticables_handle_del(handle);
