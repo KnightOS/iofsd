@@ -33,8 +33,13 @@ packet_callback:
     ld a, 1
     kld((ready), a)
     kld(a, (current_thread))
-    ;pcall(resumeThread)
+    pcall(resumeThread)
     ld bc, 0
+    ret
+
+resume_callback:
+    ld a, 0
+    pcall(resumeThread)
     ret
 
 incoming_packet:
@@ -46,13 +51,6 @@ send_buffer:
     pcall(ioSendBuffer)
     ret z
     jr send_buffer
-
-packet_handlers:
-    .db 0x01
-    .dw handle_ping
-    .db 0x81
-    .dw handle_list_dir
-    .db 0xFF
 
 handle_packet:
     kld(a, (ready))
@@ -69,7 +67,6 @@ handle_packet:
 
     kld(a, (incoming_packet + 1))
     ld b, a
-    kld(de, (cur@log))
     kld(hl, packet_handlers)
 .loop:
     ld a, (hl)
@@ -81,10 +78,7 @@ handle_packet:
     jr .loop
 .none:
     kld(hl, .none)
-    kcall(log)
     jr .done
-.none_text:
-    .db "<- ??", 0
 .done:
     ret
 .found:
