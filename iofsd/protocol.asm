@@ -47,6 +47,11 @@ incoming_packet:
 buffer:
     .fill 256
 
+send_and_suspend:
+    di \ kcall(send_buffer)
+    pcall(suspendCurrentThread)
+    ret
+
 send_buffer:
     pcall(ioSendBuffer)
     ret z

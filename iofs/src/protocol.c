@@ -27,7 +27,7 @@ int recv_packet(CableHandle *handle, kpacket_t *packet) {
 	int err = ticables_cable_recv(handle, header, sizeof(header));
 	if (err) return err;
 	packet->cmd = header[1];
-	packet->len = header[2] | (header[3] << 8);
+	packet->len = (header[3] << 8) | header[2];
 	packet->payload = NULL;
 	if (packet->len != 0) {
 		packet->payload = malloc(packet->len);

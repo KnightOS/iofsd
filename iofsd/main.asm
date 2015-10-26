@@ -3,7 +3,7 @@
     .db KEXC_ENTRY_POINT
     .dw start
     .db KEXC_STACK_SIZE
-    .dw 20
+    .dw 30
     .db KEXC_HEADER_END
 start:
     kcall(init_io)

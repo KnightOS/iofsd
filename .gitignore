@@ -3,5 +3,5 @@ bin/
 CMakeFiles/
 CMakeCache.txt
 cmake_install.cmake
-fuse/Makefile
-fuse/kiofs.1
+iofs/Makefile
+iofs/kiofs.1
