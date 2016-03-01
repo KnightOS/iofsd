@@ -11,26 +11,30 @@ draw_ui:
     ld c, 96
     ld b, 49
     pcall(rectAND) ; Clear the area for chat
-
-    ld de, 0x0032
-    ld hl, 0x5F32
-    pcall(drawLine)
     ret
 .window_title:
     .asciiz "iofsd"
 
 draw_message:
-    kld(de, (.cursor))
-    ld a, 0x32
-    cp e
-    kcall(z, shift_line)
+    push de
+    push af
+    push bc
+    push hl
+        kld(de, (.cursor))
+        ld a, 0x32
+        cp e
+        kcall(z, shift_line)
 
-    xor a
-    ld bc, 0x6132
-    corelib(wordWrap)
+        xor a
+        ld bc, 0x6132
+        corelib(wordWrap)
 
-    pcall(newline)
-    kld((.cursor), de)
+        pcall(newline)
+        kld((.cursor), de)
+    pop hl
+    pop bc
+    pop af
+    pop de
     ret
 .cursor:
     .dw 0x0008

@@ -20,7 +20,7 @@ main:
 
     kjp(packet_loop)
 .ready_message:
-    .db "iofsd ready.", 0
+    .db "iofsd ready", 0
 .corelib:
     .db "/lib/core", 0
 

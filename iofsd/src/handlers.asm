@@ -22,20 +22,26 @@ prepare_response:
     ret
 
 handle_ping:
+    kld(hl, .in_msg)
+    kcall(draw_message)
+    kld(hl, .out_msg)
+    kcall(draw_message)
     kld(hl, .response)
     ld bc, 4
     kld(ix, resume_callback)
-    kcall(send_and_suspend)
-    ret
+    kjp(send_buffer)
 .response:
     .db 0x52, 0x01, 0x00, 0x00
+.in_msg:
+    .db "<- PING", 0
+.out_msg:
+    .db "-> PONG", 0
 
 send_not_found:
     kld(hl, .response)
     ld bc, 4
     kld(ix, resume_callback)
-    kcall(send_and_suspend)
-    ret
+    kjp(send_buffer)
 .response:
     .db 0x52, 0x41, 0x00, 0x00
 
@@ -66,7 +72,7 @@ handle_ls:
     kld(hl, .ready_response)
     ld bc, 5
     kld(ix, resume_callback)
-    kcall(send_and_suspend) ; Send preamble
+    kcall(send_buffer) ; Send preamble
 
     kld(a, (.total))
     ld b, a
@@ -87,7 +93,7 @@ handle_ls:
             pcall(free)
             kld(hl, .entry_response)
             kcall(prepare_response)
-            kcall(send_and_suspend)
+            kcall(send_buffer)
         pop ix
     pop bc
     djnz .loop
