@@ -1,3 +1,5 @@
+#include "kernel.inc"
+
 packet_handlers:
     .db 0x01
     .dw handle_ping

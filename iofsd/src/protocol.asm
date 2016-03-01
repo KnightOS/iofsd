@@ -1,3 +1,5 @@
+#include "kernel.inc"
+
 current_thread:
     .db 0
 
@@ -43,9 +45,9 @@ resume_callback:
     ret
 
 incoming_packet:
-    .fill 4
+    .block 4
 buffer:
-    .fill 256
+    .block 256
 
 send_and_suspend:
     di \ kcall(send_buffer)
