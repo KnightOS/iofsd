@@ -7,55 +7,53 @@ packet_handlers:
     .dw handle_ls
     .db 0xFF
 
-; HL: header
-; BC: length of buffer
-prepare_response:
-    push bc
-        kld(de, incoming_packet)
-        ld bc, 4
-        ldir
-    pop bc
-    kld((incoming_packet + 2), bc)
-    inc bc \ inc bc \ inc bc \ inc bc
-    kld(hl, incoming_packet)
-    kld(ix, resume_callback)
-    ret
-
 handle_ping:
     kld(hl, .in_msg)
     kcall(draw_message)
     kld(hl, .out_msg)
     kcall(draw_message)
-    kld(hl, .response)
-    ld bc, 4
+
+    ld hl, 0 \ ld bc, 0
+    ld de, 0x0152 ; pong
     kld(ix, resume_callback)
     kjp(send_buffer)
-.response:
-    .db 0x52, 0x01, 0x00, 0x00
 .in_msg:
-    .db "<- PING", 0
+    .db "<- PING\n", 0
 .out_msg:
-    .db "-> PONG", 0
+    .db "-> PONG\n", 0
 
 send_not_found:
-    kld(hl, .response)
-    ld bc, 4
+    kld(hl, .out_msg)
+    kcall(draw_message)
+
+    ld hl, 0 \ ld bc, 0
+    ld de, 0x4152 ; not found
     kld(ix, resume_callback)
     kjp(send_buffer)
-.response:
-    .db 0x52, 0x41, 0x00, 0x00
+.out_msg:
+    .db "-> NOT FOUND\n", 0
 
 send_oom:
-    kld(hl, .response)
-    ld bc, 4
+    kld(hl, .out_msg)
+    kcall(draw_message)
+
+    ld hl, 0 \ ld bc, 0
+    ld de, 0x4252
     kld(ix, resume_callback)
     di \ kcall(send_buffer)
     pcall(suspendCurrentThread)
     ret
-.response:
-    .db 0x52, 0x42, 0x00, 0x00
+.out_msg:
+    .db "-> OOM\n", 0
 
 handle_ls:
+    kld(hl, .in_ls_msg)
+    kcall(draw_message)
+    kld(hl, buffer)
+    kcall(draw_message)
+    kld(hl, .out_ready_msg_newline)
+    kcall(draw_message)
+
     kld(de, buffer)
     pcall(directoryExists)
     jp nz, send_not_found
@@ -67,10 +65,14 @@ handle_ls:
     kld(hl, .list_callback)
     pcall(listDirectory)
     kld(a, (.total))
-    kld((.ready_response + 4), a) ; num entries
+    kld((.ready_response), a) ; num entries
+    
+    kld(hl, .out_ready_msg)
+    kcall(draw_message)
     
     kld(hl, .ready_response)
-    ld bc, 5
+    ld bc, 1
+    ld de, 0x8152 ; READY
     kld(ix, resume_callback)
     kcall(send_buffer) ; Send preamble
 
@@ -91,12 +93,18 @@ handle_ls:
             pop ix
             pop bc
             pcall(free)
-            kld(hl, .entry_response)
-            kcall(prepare_response)
+            kld(hl, .out_entry_msg)
+            kcall(draw_message)
+            kld(hl, buffer)
+            ld de, 0x8252 ; ENTRY
+            kld(ix, resume_callback)
             kcall(send_buffer)
         pop ix
     pop bc
     djnz .loop
+
+    kld(hl, .ls_done_msg)
+    kcall(draw_message)
 
     kld(ix, (.buffer))
     pcall(free)
@@ -134,6 +142,14 @@ handle_ls:
 .total:
     .db 0
 .ready_response:
-    .db 0x52, 0x81, 0x01, 0x00, 0x00
-.entry_response:
-    .db 0x52, 0x82, 0x00, 0x00
+    .db 0x00
+.in_ls_msg:
+    .db "<- LS ", 0
+.out_ready_msg:
+    .db "-> READY"
+.out_ready_msg_newline:
+    .db "\n", 0
+.out_entry_msg:
+    .db "-> (ENTRY)\n", 0
+.ls_done_msg:
+    .db "-- DONE\n", 0

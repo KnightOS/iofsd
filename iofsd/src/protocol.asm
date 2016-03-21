@@ -42,17 +42,29 @@ packet_callback:
 resume_callback:
     ld a, 0
     pcall(resumeThread)
+    ; temp
+    xor a
+    kld((send_done), a)
     ret
 
 incoming_packet:
     .block 4
 buffer:
     .block 256
+send_done:
+    .db 0
 
 send_buffer:
-    pcall(ioSendBuffer)
-    ret z
-    jr send_buffer
+    ld a, 1
+    kld((send_done), a)
+    pcall(ioSendPacket)
+    jr nz, send_buffer
+    ; temp
+.loop:
+    kld(a, (send_done))
+    or a
+    jr nz, .loop
+    ret
 
 handle_packet:
     kld(a, (ready))

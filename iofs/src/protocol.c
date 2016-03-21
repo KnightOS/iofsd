@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <tilp2/ticables.h>
+#include <tilp2/ticalcs.h>
 #include "protocol.h"
 
 #define MID 0x51

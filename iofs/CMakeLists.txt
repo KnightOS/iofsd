@@ -4,9 +4,16 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "bin/")
 add_definitions("-Wall -g")
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 find_package(Libticables REQUIRED)
+find_package(Libticalcs REQUIRED)
 find_package(GLIB REQUIRED)
 find_package(FUSE REQUIRED)
-set(LIBS ${LIBS} ${LIBTICABLES_LIBRARIES} ${GLIB_LIBRARIES} ${FUSE_LIBRARIES})
+set(LIBS
+    ${LIBS}
+    ${LIBTICABLES_LIBRARIES}
+    ${LIBTICALCS_LIBRARIES}
+    ${GLIB_LIBRARIES}
+    ${FUSE_LIBRARIES}
+)
 
 FILE(GLOB source ${PROJECT_SOURCE_DIR}/src/*.c)
 
@@ -17,6 +24,7 @@ add_executable(iofs
 include_directories(
     src/
     ${LIBTICABLES_INCLUDES}
+    ${LIBTICALCS_INCLUDES}
     ${GLIB_INCLUDES}
     ${FUSE_INCLUDES}
 )

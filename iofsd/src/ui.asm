@@ -29,8 +29,8 @@ draw_message:
         ld bc, 0x6132
         corelib(wordWrap)
 
-        pcall(newline)
         kld((.cursor), de)
+        pcall(fastCopy)
     pop hl
     pop bc
     pop af
