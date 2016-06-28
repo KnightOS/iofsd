@@ -32,11 +32,11 @@ int send_packet(CableHandle *handle, const kpacket_t *packet) {
 	kpacket_t ack;
 	while (!done) {
 		if (packet->cmd == CMD_ACK && packet->host == HOST_KERNEL) {
-			printf("Sending ACK\n");
+			fprintf(stderr, "Sending ACK\n");
 		} else if (packet->cmd == CMD_ERR && packet->host == HOST_KERNEL) {
-			printf("Sending ERR\n");
+			fprintf(stderr, "Sending ERR\n");
 		} else {
-			printf("Sending %02X to host %02X (%d bytes)\n", packet->cmd, packet->host, packet->len);
+			fprintf(stderr, "Sending %02X to host %02X (%d bytes)\n", packet->cmd, packet->host, packet->len);
 		}
 		err = ticables_cable_send(handle, header, sizeof(header));
 		if (err) break;
@@ -46,13 +46,13 @@ int send_packet(CableHandle *handle, const kpacket_t *packet) {
 			err = ticables_cable_send(handle, (uint8_t *)&sum, 2);
 		}
 		if (packet->host != HOST_KERNEL || (packet->cmd != CMD_ACK && packet->cmd != CMD_ERR)) {
-			printf("Reciving response\n");
+			fprintf(stderr, "Reciving response\n");
 			err = recv_packet(handle, &ack);
 			if (ack.host == HOST_KERNEL && (ack.cmd == CMD_ACK || ack.cmd == CMD_ERR)) {
 				if (ack.cmd == CMD_ACK) {
 					done = true;
 				} else {
-					printf("Calculator requested retry\n");
+					fprintf(stderr, "Calculator requested retry\n");
 				}
 			} else {
 				// whelp
@@ -82,20 +82,20 @@ int recv_packet(CableHandle *handle, kpacket_t *packet) {
 	uint16_t sum;
 	int err = 1;
 	while (!done) {
-		printf("Receiving header\n");
+		fprintf(stderr, "Receiving header\n");
 		err = ticables_cable_recv(handle, header, sizeof(header));
 		if (err) break;
-		printf("Received header\n");
+		fprintf(stderr, "Received header\n");
 		packet->host = header[0];
 		packet->cmd = header[1];
 		packet->len = (header[3] << 8) | header[2];
 		packet->payload = NULL;
 		if (packet->len != 0) {
-			printf("Receiving %d bytes\n", packet->len);
+			fprintf(stderr, "Receiving %d bytes\n", packet->len);
 			packet->payload = malloc(packet->len);
 			err = ticables_cable_recv(handle, packet->payload, packet->len);
 			if (err) break;
-			printf("Received %d bytes\n", packet->len);
+			fprintf(stderr, "Received %d bytes\n", packet->len);
 			err = ticables_cable_recv(handle, (uint8_t*)&sum, 2);
 			if (checksum(packet->payload, packet->len) != sum) {
 				free(packet->payload);

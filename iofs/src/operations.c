@@ -6,8 +6,11 @@
 #include "protocol.h"
 #include "operations.h"
 
+#define HOST 0x51
+
 int send_ping(CableHandle *handle, int *err) {
 	kpacket_t packet;
+	packet.host = HOST;
 	packet.cmd = CMD_PING;
 	packet.len = 0;
 	packet.payload = NULL;
@@ -25,6 +28,7 @@ int send_ping(CableHandle *handle, int *err) {
 
 kpacket_t send_ls(CableHandle *handle, const char *dir, int *err) {
 	kpacket_t packet;
+	packet.host = HOST;
 	packet.cmd = CMD_LS;
 	packet.len = strlen(dir) + 1;
 	packet.payload = (uint8_t *)dir;
@@ -36,7 +40,7 @@ kpacket_t send_ls(CableHandle *handle, const char *dir, int *err) {
 	if (*err) return packet;
 
 	int len = (int)packet.payload[0];
-	fprintf(stderr, "%d entries\n", len);
+	printf("%d entries\n", len);
 
 	int i;
 	for (i = 0; i < len; ++i) {
@@ -44,11 +48,11 @@ kpacket_t send_ls(CableHandle *handle, const char *dir, int *err) {
 		if (*err) return packet;
 		if (packet.len < 2) continue;
 		if (packet.payload[0] == 0x7F) { // file
-			fprintf(stderr, "%s\n", packet.payload + 1);
+			printf("%s\n", packet.payload + 1);
 		} else if (packet.payload[0] == 0xBF) { // dir
-			fprintf(stderr, "%s/\n", packet.payload + 1);
+			printf("%s/\n", packet.payload + 1);
 		} else if (packet.payload[0] == 0xDF) { // symlink
-			fprintf(stderr, "%s (link)\n", packet.payload + 1);
+			printf("%s (link)\n", packet.payload + 1);
 		}
 	}
 

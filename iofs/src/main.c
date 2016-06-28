@@ -8,7 +8,15 @@
 #include "protocol.h"
 #include "operations.h"
 
+CableHandle *handle;
+
 void kiofs_abort(int err) {
+	if (handle != NULL) {
+		ticables_cable_close(handle);
+		ticables_handle_del(handle);
+		ticables_library_exit();
+	}
+
 	if (err == 1234) {
 		fprintf(stderr, "Unexpected response\n");
 		exit(1);
@@ -24,7 +32,7 @@ void kiofs_abort(int err) {
 int main(int argc, char **argv) {
 	ticables_library_init();
 
-	CableHandle *handle = ticables_handle_new(CABLE_SLV, PORT_1);
+	handle = ticables_handle_new(CABLE_SLV, PORT_1);
 	if (handle == NULL) {
 		return 1;
 	}
@@ -34,6 +42,7 @@ int main(int argc, char **argv) {
 	ticables_handle_show(handle);
 
 	int err = ticables_cable_open(handle);
+	if (err) kiofs_abort(err);
 
 	if (argc > 1) {
 		if (!strcmp("ping", argv[1])) {
@@ -46,8 +55,6 @@ int main(int argc, char **argv) {
 			send_ls(handle, argv[2], &err);
 		}
 	}
-	if (err) kiofs_abort(err);
-
 
 	ticables_cable_close(handle);
 	ticables_handle_del(handle);
