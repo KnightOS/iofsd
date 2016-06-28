@@ -5,6 +5,7 @@
 
 typedef struct {
     uint8_t cmd;
+    uint8_t host;
     uint16_t len;
     uint8_t *payload;
 } kpacket_t;
