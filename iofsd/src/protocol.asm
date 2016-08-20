@@ -64,7 +64,11 @@ send_buffer:
     kld(a, (send_done))
     or a
     jr nz, .loop
+    kld(hl, .sent)
+    kcall(draw_message)
     ret
+.sent:
+    .db ".\n", 0
 
 handle_packet:
     kld(a, (ready))

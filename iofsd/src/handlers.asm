@@ -20,7 +20,7 @@ handle_ping:
 .in_msg:
     .db "<- PING\n", 0
 .out_msg:
-    .db "-> PONG\n", 0
+    .db "-> PONG ", 0
 
 send_not_found:
     kld(hl, .out_msg)
@@ -31,7 +31,7 @@ send_not_found:
     kld(ix, resume_callback)
     kjp(send_buffer)
 .out_msg:
-    .db "-> NOT FOUND\n", 0
+    .db "-> NOT FOUND ", 0
 
 send_oom:
     kld(hl, .out_msg)
@@ -44,7 +44,7 @@ send_oom:
     pcall(suspendCurrentThread)
     ret
 .out_msg:
-    .db "-> OOM\n", 0
+    .db "-> OOM ", 0
 
 handle_ls:
     kld(hl, .in_ls_msg)
@@ -96,6 +96,9 @@ handle_ls:
             kld(hl, .out_entry_msg)
             kcall(draw_message)
             kld(hl, buffer)
+            inc hl
+            kcall(draw_message)
+            dec hl
             ld de, 0x8252 ; ENTRY
             kld(ix, resume_callback)
             kcall(send_buffer)
@@ -108,6 +111,8 @@ handle_ls:
 
     kld(ix, (.buffer))
     pcall(free)
+    xor a
+    kld((.total), a)
     ret
 .list_callback:
     push de
@@ -146,10 +151,10 @@ handle_ls:
 .in_ls_msg:
     .db "<- LS ", 0
 .out_ready_msg:
-    .db "-> READY"
+    .db "-> READY "
 .out_ready_msg_newline:
     .db "\n", 0
 .out_entry_msg:
-    .db "-> (ENTRY)\n", 0
+    .db "-> ENTRY ", 0
 .ls_done_msg:
     .db "-- DONE\n", 0
