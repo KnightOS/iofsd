@@ -90,6 +90,7 @@ int recv_packet(CableHandle *handle, kpacket_t *packet) {
 		packet->cmd = header[1];
 		packet->len = (header[3] << 8) | header[2];
 		packet->payload = NULL;
+		fprintf(stderr, "Header: %02X %02X %04X\n", packet->host, packet->cmd, packet->len);
 		if (packet->len != 0) {
 			fprintf(stderr, "Receiving %d bytes\n", packet->len);
 			packet->payload = malloc(packet->len);

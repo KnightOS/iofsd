@@ -58,3 +58,30 @@ kpacket_t send_ls(CableHandle *handle, const char *dir, int *err) {
 
 	return packet;
 }
+
+kpacket_t recv_file(CableHandle *handle, const char *path, const char *output, int *err) {
+	kpacket_t packet;
+	packet.host = HOST;
+	packet.cmd = CMD_READ;
+	packet.len = strlen(path) + 1;
+	packet.payload = (uint8_t *)path;
+
+	*err = send_packet(handle, &packet);
+	if (*err) return packet;
+
+	*err = recv_packet(handle, &packet);
+	if (*err) return packet;
+
+	int len = (packet.payload[1] << 8) | packet.payload[0];
+	fprintf(stderr, "%d bytes\n", len);
+
+	FILE *f = fopen(output, "w");
+	while (len) {
+		recv_packet(handle, &packet);
+		len -= packet.len;
+		fwrite(packet.payload, 1, packet.len, f);
+	}
+	fclose(f);
+
+	return packet;
+}

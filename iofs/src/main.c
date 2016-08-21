@@ -54,6 +54,9 @@ int main(int argc, char **argv) {
 		if (!strcmp("ls", argv[1])) {
 			send_ls(handle, argv[2], &err);
 		}
+		if (!strcmp("recv", argv[1])) {
+			recv_file(handle, argv[2], argv[3], &err);
+		}
 	}
 
 	ticables_cable_close(handle);

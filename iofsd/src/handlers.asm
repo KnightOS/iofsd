@@ -5,6 +5,8 @@ packet_handlers:
     .dw handle_ping
     .db 0x81
     .dw handle_ls
+    .db 0x82
+    .dw handle_read
     .db 0xFF
 
 handle_ping:
@@ -158,3 +160,76 @@ handle_ls:
     .db "-> ENTRY ", 0
 .ls_done_msg:
     .db "-- DONE\n", 0
+
+handle_read:
+    kld(hl, .in_read_msg)
+    kcall(draw_message)
+    kld(hl, buffer)
+    kcall(draw_message)
+    kld(hl, .out_ready_msg_newline)
+    kcall(draw_message)
+
+    kld(de, buffer)
+    pcall(openFileRead)
+    jp nz, send_not_found
+    pcall(getStreamInfo)
+    ld a, e
+    kld((.size + 2), a)
+    kld((.size), bc)
+    push de
+        kld(hl, .out_ready_msg)
+        kcall(draw_message)
+
+        kld(hl, .size)
+        ld bc, 3
+        ld de, 0x8352 ; READY
+        kld(ix, resume_callback)
+        kcall(send_buffer) ; Send preamble
+    pop de
+
+    ld bc, 0x100
+    pcall(malloc)
+    jr z, .read
+    pcall(closeStream)
+    kjp(send_oom)
+.read:
+    push ix \ pop hl
+.read_loop:
+    kld(a, (.size + 2))
+    or a
+    jr nz, .block
+    kld(bc, (.size))
+    xor a
+    cp b
+    jr nz, .block
+    jr .final
+.block:
+    ld bc, 0x100
+.final:
+    pcall(streamReadBuffer)
+    push de
+    push hl
+    push ix
+        kld(ix, resume_callback)
+        ld de, 0x8452
+        kcall(send_buffer)
+        kld(hl, (.size))
+        scf \ ccf
+        sbc hl, bc
+        kld((.size), hl) ; TODO: >64K
+        ld bc, 0
+        pcall(cpHLBC)
+    pop ix
+    pop hl
+    pop de
+    jr nz, .read_loop
+    pcall(free)
+    ret
+.in_read_msg:
+    .db "<- READ ", 0
+.out_ready_msg:
+    .db "-> READY ", 0
+.out_ready_msg_newline:
+    .db "\n", 0
+.size:
+    .db 0, 0, 0

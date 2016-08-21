@@ -6,3 +6,4 @@
 
 int send_ping(CableHandle *handle, int *err);
 kpacket_t send_ls(CableHandle *handle, const char *dir, int *err);
+kpacket_t recv_file(CableHandle *handle, const char *path, const char *output, int *err);

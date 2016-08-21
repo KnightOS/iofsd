@@ -12,6 +12,7 @@ typedef struct {
 
 #define CMD_PING 0x01
 #define CMD_LS 0x81
+#define CMD_READ 0x82
 
 int send_packet(CableHandle *handle, const kpacket_t *packet);
 int recv_packet(CableHandle *handle, kpacket_t *packet);
