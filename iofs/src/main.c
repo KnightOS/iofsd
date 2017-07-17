@@ -1,3 +1,5 @@
+#define FUSE_USE_VERSION 30
+
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -5,10 +7,19 @@
 #include <stdlib.h>
 #include <tilp2/ticables.h>
 #include <glib.h>
+#include <fuse.h>
+
+#include <sys/un.h>
+#include <sys/socket.h>
+#include <unistd.h>
+
 #include "protocol.h"
 #include "operations.h"
 
 CableHandle *handle;
+extern struct fuse_operations iofs_oper;
+extern FILE *logfd;
+int socketfd;
 
 void kiofs_abort(int err) {
 	if (handle != NULL) {
@@ -30,6 +41,12 @@ void kiofs_abort(int err) {
 }
 
 int main(int argc, char **argv) {
+	if (argc > 1 && !strcmp("mount", argv[1])) {
+		return fuse_main(argc - 1, argv + 1, &iofs_oper, NULL);
+	}
+
+	logfd = fopen("/tmp/iofs.log", "a+");
+
 	ticables_library_init();
 
 	handle = ticables_handle_new(CABLE_SLV, PORT_1);
@@ -41,8 +58,24 @@ int main(int argc, char **argv) {
 	ticables_options_set_delay(handle, 10);
 	ticables_handle_show(handle);
 
-	int err = ticables_cable_open(handle);
+	int err;
+	ticables_cable_open(handle);
 	if (err) kiofs_abort(err);
+
+	//const char *socket_path = "/tmp/z80e.sock";
+	//struct sockaddr_un addr;
+	//if ((socketfd = socket(AF_UNIX, SOCK_STREAM, 0)) == -1) {
+	//	fprintf(stderr, "Failed to open socket\n");
+	//	return 1;
+	//}
+	//addr.sun_family = AF_UNIX;
+	//strncpy(addr.sun_path, socket_path, sizeof(addr.sun_path));
+	//addr.sun_path[sizeof(addr.sun_path) - 1] = 0;
+	//int l = sizeof(addr.sun_family) + strlen(addr.sun_path);
+	//if (connect(socketfd, (struct sockaddr *)&addr, l) == -1) {
+	//	fprintf(stderr, "Unable to connect to %s", socket_path);
+	//	return 1;
+	//}
 
 	if (argc > 1) {
 		if (!strcmp("ping", argv[1])) {
@@ -59,8 +92,10 @@ int main(int argc, char **argv) {
 		}
 	}
 
-	ticables_cable_close(handle);
-	ticables_handle_del(handle);
-	ticables_library_exit();
-	return 0;
+	if (handle) {
+		ticables_cable_close(handle);
+		ticables_handle_del(handle);
+		ticables_library_exit();
+	}
+	return err;
 }
