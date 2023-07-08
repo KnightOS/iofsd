@@ -1,0 +1,20 @@
+IOFS(1)
+
+# NAME
+
+iofs - Manage KnightOS filesystems over a silverlink cable.
+
+# SYNOPSIS
+
+*iofs* _command_ [args...]
+
+# COMMANDS
+
+*ls* <path>
+	Lists the contents of _path_.
+
+# AUTHORS
+
+Maintained by Drew DeVault <sir@cmpwn.com>, who is assisted by other open
+source contributors. For more information about iofsd development, see
+https://github.com/KnightOS/iofsd.

@@ -36,9 +36,8 @@ target_include_directories(iofs PRIVATE
 target_link_libraries(iofs ${LIBS})
 
 ADD_CUSTOM_COMMAND(OUTPUT ${CMAKE_BINARY_DIR}/iofs.1
-    COMMAND a2x --no-xmllint --doctype manpage --format manpage ${CMAKE_SOURCE_DIR}/iofs.1.txt
-        -D ${CMAKE_BINARY_DIR}
-  DEPENDS ${CMAKE_SOURCE_DIR}/iofs.1.txt
+    COMMAND scdoc < ${CMAKE_SOURCE_DIR}/iofs.1.scdoc > ${CMAKE_BINARY_DIR}/iofs.1
+  DEPENDS ${CMAKE_SOURCE_DIR}/iofs.1.scdoc
 )
 
 ADD_CUSTOM_TARGET(man ALL
